@@ -63,6 +63,8 @@ def update_record(
         raise HTTPException(status_code=404, detail="Record not found")
 
     for field, value in body.model_dump(exclude_unset=True).items():
+        if value is None and field != "notes":
+            raise HTTPException(status_code=400, detail=f"'{field}' cannot be set to null")
         setattr(record, field, value)
 
     db.commit()
