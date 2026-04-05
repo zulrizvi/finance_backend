@@ -1,3 +1,4 @@
+import datetime as dt
 from datetime import date, datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr
@@ -56,7 +57,7 @@ class RecordUpdate(BaseModel):
     amount: Optional[float] = None
     type: Optional[RecordType] = None
     category: Optional[str] = None
-    date: Optional[date] = None
+    date: Optional[dt.date] = None
     notes: Optional[str] = None
 
 
