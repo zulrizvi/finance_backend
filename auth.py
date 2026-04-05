@@ -4,7 +4,7 @@ from passlib.context import CryptContext
 
 SECRET_KEY = "finance-secret-key-change-in-production"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8  # 8 hours
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 8  # 8 hrs
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

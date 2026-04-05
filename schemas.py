@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr
 from models import Role, Status, RecordType
 
 
-# ── Auth ──────────────────────────────────────────────────────────────────────
+## Auth
 
 class RegisterRequest(BaseModel):
     email: EmailStr
@@ -23,7 +23,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
-# ── Users ─────────────────────────────────────────────────────────────────────
+### Users
 
 class UserResponse(BaseModel):
     id: int
@@ -43,7 +43,7 @@ class UpdateStatusRequest(BaseModel):
     status: Status
 
 
-# ── Financial Records ─────────────────────────────────────────────────────────
+## Financial Records
 
 class RecordCreate(BaseModel):
     amount: float
@@ -74,7 +74,7 @@ class RecordResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-# ── Dashboard ─────────────────────────────────────────────────────────────────
+### Dashboard
 
 class CategoryTotal(BaseModel):
     category: str

@@ -7,7 +7,6 @@ from dependencies import require_role
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
-# All user management routes are admin-only
 admin_only = Depends(require_role(Role.ADMIN))
 
 
