@@ -1,73 +1,32 @@
 # Finance Dashboard API
 
-A simple, clean REST API backend for a role-based finance dashboard system.
+REST API backend for a role-based finance dashboard system
 
-## Stack
+## Tech Stack used
 
-| Concern | Choice |
+| Component | Choice |
 |---|---|
-| Language | Python 3.11+ |
-| Framework | FastAPI |
-| Database | SQLite (file: `finance.db`) |
+| Framework | FastAPI (Python 3.11+) |
+| Database | SQLite |
 | ORM | SQLAlchemy |
 | Validation | Pydantic v2 |
-| Auth | JWT via `python-jose` + `passlib` (bcrypt) |
+| Authentication | JWT via `python-jose` & `passlib` |
 
 ---
 
-## Project Structure
+## Local Setup
 
-```text
-.
-├── main.py             # Application entry point
-├── database.py         # SQLAlchemy setup
-├── models.py           # Database SQLAlchemy models
-├── schemas.py          # Pydantic validation models
-├── auth.py             # JWT auth and hashing
-├── dependencies.py     # FastAPI dependencies (auth, db)
-├── routers/            # API route definitions
-│   ├── auth.py         # Auth endpoints
-│   ├── dashboard.py    # Analytics endpoints
-│   ├── records.py      # CRUD for records
-│   └── users.py        # User management
-└── test_api.py         # Basic integration tests
-```
+Since this application is primarily deployed on Render, local setup is kept to the absolute minimum.
 
----
 
-## Setup & Run
-
-### 1. Create and activate a virtual environment
-
-```bash
-python -m venv venv
-
-# Windows
-venv\Scripts\activate
-
-# macOS / Linux
-source venv/bin/activate
-```
-
-### 2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Start the server
-
-```bash
-uvicorn main:app --reload
-```
-
-The API will be available at **http://localhost:8000**
-
-Interactive API docs with swagger UI will be at: **http://localhost:8000/docs**
+The API will be available at **http://localhost:8000**.
+Interactive API documentation (Swagger UI) is automatically generated at **http://localhost:8000/docs**.
 
 ---
 
 ## Roles & Permissions
+
+Granular access control ensuring secure data management:
 
 | Action | VIEWER | ANALYST | ADMIN |
 |---|:---:|:---:|:---:|
@@ -87,96 +46,57 @@ Interactive API docs with swagger UI will be at: **http://localhost:8000/docs**
 ### Auth
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/auth/register` | Register a user (role optional, defaults to VIEWER) |
-| POST | `/auth/login` | Login and receive a JWT token |
+| POST | `/auth/register` | Register a new user (role defaults to `VIEWER` if unspecified). |
+| POST | `/auth/login` | Authenticate and obtain a JWT bearer token. |
 
-**Register body:**
-```json
-{
-  "email": "admin@example.com",
-  "password": "secret123",
-  "role": "ADMIN"
-}
-```
-
-**Login response:**
-```json
-{
-  "access_token": "<JWT_TOKEN>",
-  "token_type": "bearer"
-}
-```
-
-Use the token in the `Authorization` header for all protected routes:
-```
-Authorization: Bearer <JWT_TOKEN>
-```
-
----
-
-### Users (Admin only)
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/users` | List all users |
-| PUT | `/users/{id}/role` | Update a user's role |
-| PUT | `/users/{id}/status` | Activate or deactivate a user |
-
----
-
-### Financial Records
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/records` | List records (Analyst, Admin) |
-| POST | `/records` | Create a record (Admin) |
-| PUT | `/records/{id}` | Update a record (Admin) |
-| DELETE | `/records/{id}` | Delete a record (Admin) |
-
-**GET /records query filters:**
-- `type` — `INCOME` or `EXPENSE`
-- `category` — partial text match
-- `date_from` — `YYYY-MM-DD`
-- `date_to` — `YYYY-MM-DD`
-- `page` — page number (default: 1)
-- `limit` — records per page (default: 20, max: 100)
-
-**POST /records body:**
-```json
-{
-  "amount": 5000.00,
-  "type": "INCOME",
-  "category": "Salary",
-  "date": "2024-01-15",
-  "notes": "January salary"
-}
-```
+Use the obtained token in the `Authorization` header for all protected routes:
+`Authorization: Bearer <JWT_TOKEN>`
 
 ---
 
 ### Dashboard
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/dashboard/summary` | Aggregated summary (all roles) |
+| GET | `/dashboard/summary` | Aggregated summary of income, expenses, and category totals. Accessible to all roles. |
 
-**Response includes:**
-- `total_income` — sum of all INCOME records
-- `total_expenses` — sum of all EXPENSE records
-- `net_balance` — income - expenses
-- `category_totals` — per-category sum
-- `recent_records` — last 5 records by date
+---
+
+### Financial Records
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/records` | List records with optional filters (Analyst, Admin). |
+| POST | `/records` | Create a new financial record (Admin). |
+| PUT | `/records/{id}` | Update an existing financial record (Admin). |
+| DELETE | `/records/{id}` | Delete a financial record (Admin). |
+
+**Supported Filters (`GET /records`):**
+- `type`: `INCOME` or `EXPENSE`
+- `category`: Partial text lookup
+- `date_from` / `date_to`: `YYYY-MM-DD`
+- `page` / `limit`: Pagination controls
+
+---
+
+### Users (Admin Only)
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/users` | List all users. |
+| PUT | `/users/{id}/role` | Grant or revoke roles (e.g., promote to `ADMIN`). |
+| PUT | `/users/{id}/status` | Activate or deactivate a user account. |
 
 ---
 
 ## Assumptions & Design Decisions
 
-1. **SQLite** is used for simplicity. Provides a zero-configuration database that is easy for evaluators to run. It can be easily swapped with PostgreSQL by changing `DATABASE_URL`.
-2. **Admin Registration**: The system allows passing `"role": "ADMIN"` during registration for easy setup. In production, this would be restricted.
-3. **Authentication**: JWT is used for stateless authentication. Tokens expire after 8 hours.
-4. **Inactive Users**: User status checking is implemented. Inactive users receive `403 Forbidden` on protected routes.
-5. **Database Initialization**: Tables are automatically created on startup via SQLAlchemy `create_all`. Alembic isn't used to keep the setup step minimal.
+1. **SQLite Database**: Chosen for complete simplicity, offering a zero-configuration database that works natively in the local environment and deployed platforms without external dependencies.
+2. **Admin Bootstrapping**: The system intentionally allows passing `"role": "ADMIN"` during registration purely to facilitate easy testing and initial setup.
+3. **Stateless Authentication**: JWT evaluates authenticity and expiration locally without needing a stateful session store. Tokens expire after 8 hours.
+4. **Inactive Users**: User status checking is actively enforced. Deactivated users automatically receive a `403 Forbidden` rejection on protected routes.
+5. **Database Initialization**: Tables are automatically evaluated and created on startup via SQLAlchemy `create_all`. Migrations (like Alembic) are omitted to keep the app lifecycle extremely simple.
 
 ## Trade-offs Considered
 
-- **Soft vs Hard Deletes**: Records are permanently deleted from the database. This keeps the queries simple and focuses on basic CRUD operations, though soft deletes would be safer in production context.
-- **Pagination Strategy**: Used standard limit/offset pagination rather than cursor-based. It is simpler to implement and sufficiently performant for the scope of a dashboard.
-- **Role Verification**: Roles are checked explicitly in route dependencies (e.g., `require_admin`). While a more complex ACL (Access Control List) system could offer finer granularity, explicit role checks provide better readability and simplicity for this scale.
-- **Inline Error Handling**: Simple HTTPException calls are used throughout the endpoints instead of a centralized exception handler to keep the logic easy to follow linearly.
+- **Hard Deletions vs. Soft Deletes**: Records are permanently deleted from the database to aggressively prioritize simplicity across CRUD operations. Soft deletes would be implemented for a larger, audit-heavy production context.
+- **Limit/Offset Pagination**: Standard offset pagination is used instead of cursor-based pagination. It provides straightforward logic and is highly performant for the realistic volume of a personal dashboard database.
+- **Explicit Role Verification**: Roles are enforced explicitly in FastAPI route dependencies rather than a dense Access Control List (ACL) matrix. This provides maximum code readability and linear control flow.
+- **Inline Error Handling**: Endpoints handle logical failures and dispatch explicit `HTTPException` rules internally. This allows developers to follow route execution without navigating through centralized exception handlers.
