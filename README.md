@@ -14,13 +14,13 @@ REST API backend for a role-based finance dashboard system
 
 ---
 
-## Local Setup
+## Deployment on Render.com
 
-Since this application is primarily deployed on Render, local setup is kept to the absolute minimum.
+Deployed the project or assessment on Render.com
+and as it was deployed on the free version of it database will be reset everytime the server is restarted.
 
-
-The API will be available at **http://localhost:8000**.
-Interactive API documentation (Swagger UI) is automatically generated at **http://localhost:8000/docs**.
+The API will be available at **https://finance-api-688n.onrender.com**.
+Interactive API documentation (Swagger UI) is automatically generated at **https://finance-api-688n.onrender.com/docs**.
 
 ---
 
@@ -77,7 +77,7 @@ Use the obtained token in the `Authorization` header for all protected routes:
 
 ---
 
-### Users (Admin Only)
+### Users (Only for Admins)
 | Method | Endpoint | Description |
 |---|---|---|
 | GET | `/users` | List all users. |
@@ -88,8 +88,8 @@ Use the obtained token in the `Authorization` header for all protected routes:
 
 ## Assumptions & Design Decisions
 
-1. **SQLite Database**: Chosen for complete simplicity, offering a zero-configuration database that works natively in the local environment and deployed platforms without external dependencies.
-2. **Admin Bootstrapping**: The system intentionally allows passing `"role": "ADMIN"` during registration purely to facilitate easy testing and initial setup.
+1. **SQLite Database**: Chose it for it's simplicity, it requires almost no configuration and works on almost all platforms without external dependencies.
+2. **Admin Bootstrapping**: The system intentionally allows passing `"role": "ADMIN"` during registration just to make it easy for testings and initial setup.
 3. **Stateless Authentication**: JWT evaluates authenticity and expiration locally without needing a stateful session store. Tokens expire after 8 hours.
 4. **Inactive Users**: User status checking is actively enforced. Deactivated users automatically receive a `403 Forbidden` rejection on protected routes.
 5. **Database Initialization**: Tables are automatically evaluated and created on startup via SQLAlchemy `create_all`. Migrations (like Alembic) are omitted to keep the app lifecycle extremely simple.
