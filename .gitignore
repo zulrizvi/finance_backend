@@ -1,7 +1,6 @@
 venv/
 __pycache__/
 *.pyc
-.env
 finance.db
 test_out.txt
 full_output.txt
